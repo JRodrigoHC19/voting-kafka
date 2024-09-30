@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "hd/QMSUhvTs=",
+  "success": true,
+  "projectFilePath": "D:\\DockerShared\\code\\projects-C#\\Generator-Data\\App.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\prett\\.nuget\\packages\\confluent.kafka\\2.5.3\\confluent.kafka.2.5.3.nupkg.sha512",
+    "C:\\Users\\prett\\.nuget\\packages\\librdkafka.redist\\2.5.3\\librdkafka.redist.2.5.3.nupkg.sha512"
+  ],
+  "logs": []
+}
