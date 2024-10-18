@@ -22,6 +22,7 @@
           <div class="choice cats">
             <div class="label">Cats</div>
             <div class="stat">{{aPercent | number:1}}%</div>
+            <div id="temp_value">{{ }}</div>
           </div>
           <div class="divider"></div>
           <div class="choice dogs">
@@ -39,5 +40,16 @@
     <script src="socket.io.js"></script>
     <script src="angular.min.js"></script>
     <script src="app.js"></script>
+    
+    <h1>Temperatura en Tiempo Real</h1>
+    <p>Temperatura: <span id="temperature">0</span> °C</p>
+
+    <script>
+        var socket = io.connect();
+
+        socket.on('temperatureUpdate', function(data) {
+            document.getElementById('temperature').textContent = data.temperature;
+        });
+    </script>
   </body>
 </html>

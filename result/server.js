@@ -1,3 +1,4 @@
+const { Kafka } = require('kafkajs');
 var express = require('express'),
     async = require('async'),
     { Pool } = require('pg'),
@@ -7,6 +8,13 @@ var express = require('express'),
     io = require('socket.io')(server);
 
 var port = process.env.PORT || 4000;
+
+const kafka = new Kafka({
+  clientId: 'temperature-app',
+  brokers: ['kafka:9092']
+});
+
+const consumer = kafka.consumer({ groupId: 'temperature-group' });
 
 io.on('connection', function (socket) {
 
@@ -62,6 +70,25 @@ function collectVotesFromResult(result) {
 
   return votes;
 }
+
+
+
+const run = async () => {
+  await consumer.connect();
+  await consumer.subscribe({ topic: 'temperatures', fromBeginning: true });
+
+  await consumer.run({
+    eachMessage: async ({ topic, partition, message }) => {
+      const temperatureData = message.value.toString();
+      console.log(`Nuevo dato de temperatura: ${temperatureData}`);
+      
+      io.emit('temperatureUpdate', { temperature: temperatureData });
+    },
+  });
+};
+
+run().catch(console.error);
+
 
 app.use(cookieParser());
 app.use(express.urlencoded());

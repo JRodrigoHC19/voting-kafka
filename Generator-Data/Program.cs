@@ -6,7 +6,7 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        var config = new ProducerConfig { BootstrapServers = "localhost:29092" };
+        var config = new ProducerConfig { BootstrapServers = "kafka:9092" };
         string topicName = "temperatures";
 
         using var producer = new ProducerBuilder<Null, string>(config).Build();

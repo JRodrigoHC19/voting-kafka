@@ -1,4 +1,3 @@
-from confluent_kafka import Consumer, KafkaException, KafkaError
 from flask import Flask, render_template, request, make_response, g
 from redis import Redis
 import os
@@ -12,17 +11,6 @@ option_b = os.getenv('OPTION_B', "Dogs")
 hostname = socket.gethostname()
 
 app = Flask(__name__)
-
-
-# Kafka - Consumer
-kafka_conf = {
-    'bootstrap.servers': 'kafka:29092',
-    'group.id': 'temperature-consumer-group',
-    'auto.offset.reset': 'earliest'
-}
-consumer = Consumer(kafka_conf)
-topic = "temperatures"
-consumer.subscribe([topic])
 
 
 
@@ -43,7 +31,6 @@ def hello():
         voter_id = hex(random.getrandbits(64))[2:-1]
 
     vote = None
-    temperature = "No data"
 
     if request.method == 'POST':
         redis = get_redis()
@@ -52,31 +39,13 @@ def hello():
         data = json.dumps({'voter_id': voter_id, 'vote': vote})
         redis.rpush('votes', data)
 
-    try:
-        # Leer mensaje de Kafka
-        msg = consumer.poll(timeout=1.0)
-        if msg is None:
-            temperature = "No new data"
-        elif msg.error():
-            if msg.error().code() == KafkaError._PARTITION_EOF:
-                pass
-            elif msg.error():
-                raise KafkaException(msg.error())
-        else:
-            # Obtener el valor de temperatura del mensaje
-            temperature = msg.value().decode('utf-8')
-            app.logger.info(f"Temperatura recibida: {temperature} °C")
-    except Exception as e:
-        app.logger.error(f"Error consumiendo de Kafka: {e}")
-
 
     resp = make_response(render_template(
         'index.html',
         option_a=option_a,
         option_b=option_b,
         hostname=hostname,
-        vote=vote,
-        temperature=temperature
+        vote=vote
     ))
     resp.set_cookie('voter_id', voter_id)
     return resp
